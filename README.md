@@ -4,7 +4,7 @@ A minimal, 3D graphics renderer built from scratch and written in C. No OpenGL, 
 
 ![Wireframe cube in 3D](screenshots/wireframe-cube.png)
 
-The main goal of this project was to learn about 3D graphics and the rendering pipeline. This also ties in with helping me learn more about C and safe-memory management. Big thank you to [ScratchPixel](www.scratchpixel.com) and [Learn OpenGL](https://learnopengl.com/) for breaking down graphics concepts!
+The main goal of this project was to learn about 3D graphics and the rendering pipeline. This also ties in with helping me learn more about C and safe-memory management. Big thank you to [ScratchPixel](https://www.scratchpixel.com) and [Learn OpenGL](https://learnopengl.com/) for breaking down graphics concepts!
 
 
 
