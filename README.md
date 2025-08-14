@@ -60,8 +60,6 @@ cd ..
 ```bash
 cmake --build build
 ./build/bin/renderer
-
-
 ```
 
 ## 🎮 Controls
