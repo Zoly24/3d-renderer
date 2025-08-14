@@ -55,7 +55,7 @@ uint32_t frame_count = 0;
 uint64_t last_fps_update = 0;
 float fps = 0.0f;
 
-Mesh *m9_bayonet;
+Mesh *mesh;
 ModelObject *model;
 
 void update_user_input(UserInput *);
@@ -151,20 +151,20 @@ static SDL_AppResult initialize_camera() {
 }
 
 static SDL_AppResult initialize_objects() {
-    m9_bayonet = (Mesh *)malloc(sizeof(Mesh));
-    if (!m9_bayonet) {
+    mesh = (Mesh *)malloc(sizeof(Mesh));
+    if (!mesh) {
         printf("Could not allocate mem for mesh");
         return SDL_APP_FAILURE;
     }
 
-    FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/CubeBasic/cube2/Simple_Cube_in_OBJ_FBX_format.obj");
+    FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/Cube/Cube.obj");
     if (!file) {
         printf("Could not open file");
         return SDL_APP_FAILURE;
     }
 
-    generate_mesh(file, m9_bayonet);
-    model = create_model_object(m9_bayonet);
+    generate_mesh(file, mesh);
+    model = create_model_object(mesh);
     if (!model) {
         printf("Could not allocate mem for model");
         return SDL_APP_FAILURE;
@@ -480,9 +480,9 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
         camera->projection_mat = NULL;
     }
 
-    if (m9_bayonet) {
-        free_obj_reader(m9_bayonet);
-        m9_bayonet = NULL;
+    if (mesh) {
+        free_obj_reader(mesh);
+        mesh = NULL;
     }
 
     if (model) {
