@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(simulation C)
+project(renderer C)
 
 # Set C standard
 set(CMAKE_C_STANDARD 11)
@@ -29,10 +29,10 @@ set(SOURCE_FILES
 )
 
 # Create executable
-add_executable(simulation ${SOURCE_FILES})
+add_executable(renderer ${SOURCE_FILES})
 
 # Include your own headers
-target_include_directories(simulation PRIVATE src)
+target_include_directories(renderer PRIVATE src)
 
 # Link SDL3 (modern target) — this includes headers and libs
-target_link_libraries(simulation SDL3::SDL3 m)
+target_link_libraries(renderer SDL3::SDL3 m)
