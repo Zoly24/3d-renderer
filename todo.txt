@@ -1,0 +1,57 @@
+URGENT:
+- [ ] Debug Camera
+    - [ ] Ensure Correct Calculation For:
+        -[ ] Far
+        -[ ] Near
+        -[ ] Right
+        -[ ] Left
+        -[ ] Top
+        -[ ] Bottom
+
+Phase 1: Complete and Optimize CPU Renderer
+- [x] Finish OBJ Parser:
+    - [x] Vector Parsing
+        - [x] Vector Reader
+        - [x] Vector Creation
+    - [x] Face Parsing
+        - [x] Create Token For Whole Line #1
+        - [x] Create Token For Whole Line #2
+        - [x] Create Array For Each v/vn/vt
+            - [x] Parse Through Line #1 Using " " Delimiter
+            - [x] Create v Array
+            - [x] Create vn Array
+            - [x] Create vt Array
+        - [x] Populate Array By Tokenizing
+            - [x] Tokenize Using " " Delimiter on Line #2
+                - [x] Tokenize Using "/" On New Token
+            - [x] Populate v Array
+            - [x] Populate vn Array
+            - [x] Populate vt Array
+    - [x] Iterate And Create Nx3 Sized Array For Triangle Data
+
+- [ ] Implement Core Culling and Z-Buffering:
+    - [x] Calculate and Store Surface Normals for each triangle.
+    - [x] Implement Back-Face Culling to discard unseen triangles.
+    - [ ] Implement Frustum Culling to discard triangles outside the camera's view.
+    - [ ] Implement Correct Z-Buffering Logic for accurate depth rendering.
+
+- [ ] Implement Basic Shading:
+    - [ ] Apply Flat Shading using surface normals to create a 3D look.
+    - [ ] Visualize Surface Normals as a debugging tool.
+
+---
+Phase 2: Add Advanced CPU Features
+- [ ] Shading Using Interpolation:
+    - [ ] Implement Gouraud or Phong shading to smoothly interpolate color across triangles.
+- [ ] Apply Textures:
+    - [ ] Use parsed `vt` data to map textures onto triangles.
+
+Phase 3: The GPU Transition
+- [ ] Learn a Graphics API (e.g., OpenGL):
+    - [ ] Set up an OpenGL context with SDL.
+    - [ ] Write a basic Vertex Shader and Fragment Shader (GLSL).
+- [ ] Manage GPU Memory:
+    - [ ] Create a Vertex Buffer Object (VBO) to upload vertex data.
+    - [ ] Create a Vertex Array Object (VAO) to organize the VBO data.
+- [ ] Draw with the GPU:
+    - [ ] Replace the entire CPU rendering loop with a single draw call.

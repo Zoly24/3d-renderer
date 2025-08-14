@@ -1,0 +1,11 @@
+# .clang-format
+# This configuration forces 4-space indentation and disables automatic line wrapping.
+
+IndentWidth: 4          # Forces all indentation to be 4 spaces wide.
+ColumnLimit: 0          # Disables the column limit, preventing automatic line breaks.
+                        # A value of 0 means no column limit.
+IndentCaseLabels: true  # Indents the "case" in swtich statements
+
+# Optional, but often desired:
+UseTab: Never        # Ensures spaces are used for indentation, not actual tab characters.
+                     # If you truly want literal tab characters, set this to 'Always'.
