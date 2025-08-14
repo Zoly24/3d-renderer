@@ -13,7 +13,7 @@ The main goal of this project was to learn about 3D graphics and the rendering p
 ## 🎨 Features
 
 - Custom implemented 3D rendering pipeline: Model -> World -> View -> Projection
-- 4x4 Homogeneous Matrix and Vectors with custom math implementation
+- 4x4 Homogeneous Matrix (Row Major) and Vectors with custom math implementation
 - Custom `.obj` file loader (vertex, triangles, normals)
 - Fly-style camera with perspective projection
 - Bresenham's Line Algorithm for line rasterization and triangle creation
