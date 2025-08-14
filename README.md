@@ -1,4 +1,4 @@
-# 3D Renderer in C
+# 🧊 3D Renderer in C
 
 A minimal, 3D graphics renderer built from scratch and written in C. No OpenGL, no high-level libraries, just math and pixels.
 
@@ -46,6 +46,7 @@ sudo pacman -S sdl3
 ```
 
 If your package manager does not include SDL3, build it from source [here](https://github.com/libsdl-org/SDL/blob/main/INSTALL.md)
+
 3. Build the renderer
 
 ```bash
