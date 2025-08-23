@@ -157,7 +157,7 @@ static SDL_AppResult initialize_objects() {
         return SDL_APP_FAILURE;
     }
 
-    FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/one-triangle/triangle.obj");
+    FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/Cube/Cube.obj");
     if (!file) {
         printf("Could not open file");
         return SDL_APP_FAILURE;
@@ -444,8 +444,6 @@ iVec2 *project_3d_to_2d(fVec3 *p) {
 
     fVec3 *clip_space = create_fvec3(0, 0, 0);
     multiply_fvec3_matrix44(camera_space, clip_space, camera->projection_mat);
-
-    printf("clip_space: %.2f, %.2f, %.2f\n", clip_space->x, clip_space->y, clip_space->z);
 
     // NOTE: Clip_space is normalized to -1, 1 for x and -1, 1 for y (kinda like NDC space)
     if (clip_space->x < -1 ||
