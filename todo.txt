@@ -33,6 +33,7 @@ Phase 1: Complete and Optimize CPU Renderer
     - [x] Calculate and Store Surface Normals for each triangle.
     - [x] Implement Back-Face Culling to discard unseen triangles.
     - [x] Implement Frustum Culling to discard triangles outside the camera's view.
+    - [ ] Implement triangle optimization for intersecting objects
     - [ ] Implement Correct Z-Buffering Logic for accurate depth rendering.
 
 - [ ] Implement Basic Shading:
