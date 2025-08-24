@@ -18,6 +18,7 @@ The main goal of this project was to learn about 3D graphics and the rendering p
 - Fly-style camera with perspective projection
 - Bresenham's Line Algorithm for line rasterization and triangle creation
 - Backface culling using winding order
+- Frustum culling using Hartmann & Gribbs frustum plane extraction and bounding boxes
 - SDL3 for window and input handling
 
 ---
@@ -50,10 +51,7 @@ If your package manager does not include SDL3, build it from source [here](https
 3. Build the renderer
 
 ```bash
-mkdir build
-cd build
-cmake ..
-cd ..
+cmake -S . -B build
 ```
 
 4. Build and run
