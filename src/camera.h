@@ -1,16 +1,12 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "constants.h"
 #include "geometry.h"
 #include "transform.h"
 
 typedef struct Frustum {
-    fPlane *near_plane;
-    fPlane *far_plane;
-    fPlane *left_plane;
-    fPlane *right_plane;
-    fPlane *bottom_plane;
-    fPlane *top_plane;
+    fPlane planes[NUM_FRUSTUM_PLANES];
 } CameraFrustum;
 
 typedef struct CameraSettings {
@@ -34,7 +30,7 @@ typedef struct Camera {
     fMatrix44 *camera_mat;
     fMatrix44 *projection_mat;
 
-    CameraFrustum *frustum;
+    CameraFrustum frustum;
     CameraSettings settings;
 } UserCamera;
 
@@ -42,6 +38,7 @@ UserCamera *create_camera(void);
 void camera_look_at(UserCamera *, fVec3 *, fVec3 *, fVec3 *);
 void camera_look_at_front(UserCamera *, fVec3 *, fVec3 *, fVec3 *);
 void update_projection_mat(UserCamera *);
+void update_frustum_planes(UserCamera *);
 void perspective(float *, float *, float *, float *, float *, float *, float *, float *);
 void frustum(float *, float *, float *, float *, float *, float *, fMatrix44 *);
 

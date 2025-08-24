@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 3.16)
 project(renderer C)
 
+# Always build in Debug mode
+set(CMAKE_BUILD_TYPE Debug)
+
+# Debug Flags
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -Wall -Wextra")
+
 # Set C standard
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-
-# Debug flags
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -Wall -Wextra")
 
 # Output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -35,4 +38,4 @@ add_executable(renderer ${SOURCE_FILES})
 target_include_directories(renderer PRIVATE src)
 
 # Link SDL3 (modern target) — this includes headers and libs
-target_link_libraries(renderer SDL3::SDL3 m)
+target_link_libraries(renderer PRIVATE SDL3::SDL3 m)

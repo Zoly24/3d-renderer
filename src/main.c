@@ -21,6 +21,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,7 +70,7 @@ void render_scene(void);
 int is_model_in_frustum(ModelObject *);
 int is_point_in_frustum(fVec3 *);
 fVec3 *transform_point_to_clip_space(fVec3 *);
-void render_bounding_box(ModelObject *);
+int render_bounding_box(ModelObject *);
 void render_model_geometry(ModelObject *);
 void render_triangle(VecConnectionsPoints *, iVec2 **, int *);
 int is_front_facing(iVec2 **);
@@ -286,6 +287,7 @@ void test_functions() {
 void run_program() {
     clear_screen();
     update_fps();
+    update_frustum_planes(camera);
     update_model_transforms();
     render_scene();
     SDL_RenderPresent(renderer);
@@ -317,28 +319,40 @@ void update_model_transforms() {
 }
 
 void render_scene() {
-
-    render_bounding_box(model);
-
-    render_model_geometry(model);
+    int inside;
+    if ((inside = render_bounding_box(model)) == INSIDE_FRUSTUM || inside == INTERSECT_FRUSTUM) {
+        render_model_geometry(model);
+    }
 }
 
-void render_bounding_box(ModelObject *model) {
-    for (int i = 0; i < NUM_BOUNDING_BOX_VERTEX; i++) {
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-        iVec2 *screen_pos = project_3d_to_2d(model->mesh->bounding_box_vec[i]);
-        if (screen_pos) {
-            SDL_RenderPoint(renderer, screen_pos->x, screen_pos->y);
-            free(screen_pos);
+int render_bounding_box(ModelObject *model) {
+    int result = INSIDE_FRUSTUM;
+    for (int i = 0; i < NUM_FRUSTUM_PLANES; i++) {
+        int num_vertex_out = 0;
+        int num_vertex_in = 0;
+        for (int j = 0; j < NUM_BOUNDING_BOX_VERTEX && (num_vertex_out == 0 || num_vertex_in == 0); j++) {
+            if (plane_distance_to_fvec3(camera->frustum.planes[i], model->mesh->bounding_box_vec[j]) == NEGATIVE_OF_PLANE) {
+                num_vertex_out++;
+            } else {
+                num_vertex_in++;
+            }
+        }
+
+        if (!num_vertex_in) {
+            return OUTSIDE_FRUSTUM;
+        } else if (num_vertex_out) {
+            result = INTERSECT_FRUSTUM;
         }
     }
+
+    return result;
 }
 
 void render_model_geometry(ModelObject *model) {
     VecConnectionsPoints *triangle = model->mesh->head;
     iVec2 **batch_triangles = calloc(model->mesh->num_triangles, sizeof(iVec2 *));
     for (int i = 0; i < model->mesh->num_triangles; i++) {
-        batch_triangles[i] = calloc(3, sizeof(iVec2));
+        batch_triangles[i] = calloc(NUM_TRIANGLE_VERTEX, sizeof(iVec2));
     }
 
     int triangle_idx = 0;
@@ -349,6 +363,7 @@ void render_model_geometry(ModelObject *model) {
     }
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+
     batch_draw_triangles(renderer, triangle_idx, batch_triangles);
     for (int i = 0; i < model->mesh->num_triangles; i++) {
         free(batch_triangles[i]);
@@ -458,10 +473,9 @@ iVec2 *project_3d_to_2d(fVec3 *p) {
     int x = (int)((clip_space->x + 1.0f) * 0.5f * SCREEN_WIDTH);
     int y = (int)((1.0f - (clip_space->y + 1.0f) * 0.5f) * SCREEN_HEIGHT);
 
-    x = fmax(0, fmin(SCREEN_WIDTH - 1, x));
-    y = fmax(0, fmin(SCREEN_HEIGHT - 1, y));
-
-    z_buffer[y * SCREEN_WIDTH + x] = (int)(clip_space->z * 255);
+    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) {
+        z_buffer[y * SCREEN_WIDTH + x] = (int)(clip_space->z * 255);
+    }
 
     free(camera_space);
     free(clip_space);

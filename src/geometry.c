@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "constants.h"
 #include "geometry.h"
 
 fVec3 *create_fvec3(float x, float y, float z) {
@@ -394,6 +395,17 @@ void multiply_fvec3_matrix44(fVec3 *in, fVec3 *out, fMatrix44 *mat) {
         out->y /= w;
         out->z /= w;
     }
+}
+
+int plane_distance_to_fvec3(fPlane plane, fVec3 *v) {
+    float distance = (plane.a * v->x) + (plane.b * v->y) + (plane.c * v->z) + plane.d;
+
+    if (distance < 0) {
+        return NEGATIVE_OF_PLANE;
+    } else if (distance > 0) {
+        return POSITIVE_OF_PLANE;
+    }
+    return ON_PLANE;
 }
 
 void print_matrix(fMatrix44 *mat) {

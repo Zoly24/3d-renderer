@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "camera.h"
 #include "constants.h"
@@ -31,6 +32,7 @@ UserCamera *create_camera() {
                 &camera->settings.right);
 
     update_projection_mat(camera);
+    update_frustum_planes(camera);
     return camera;
 }
 
@@ -93,6 +95,41 @@ void update_projection_mat(UserCamera *camera) {
             &camera->settings.left, &camera->settings.right,
             &camera->settings.near, &camera->settings.far,
             camera->projection_mat);
+}
+
+void update_frustum_planes(UserCamera *camera) {
+    fMatrix44 *view_projection_mat = mult_fmatrix44(camera->camera_mat, camera->projection_mat);
+
+    // ROW ORDER (NOT COLUMN ORDER LIKE OPENGL)
+    camera->frustum.planes[LEFT_PLANE].a = view_projection_mat->mat[0][3] + view_projection_mat->mat[0][0];
+    camera->frustum.planes[LEFT_PLANE].b = view_projection_mat->mat[1][3] + view_projection_mat->mat[1][0];
+    camera->frustum.planes[LEFT_PLANE].c = view_projection_mat->mat[2][3] + view_projection_mat->mat[2][0];
+    camera->frustum.planes[LEFT_PLANE].d = view_projection_mat->mat[3][3] + view_projection_mat->mat[3][0];
+
+    camera->frustum.planes[RIGHT_PLANE].a = view_projection_mat->mat[0][3] - view_projection_mat->mat[0][0];
+    camera->frustum.planes[RIGHT_PLANE].b = view_projection_mat->mat[1][3] - view_projection_mat->mat[1][0];
+    camera->frustum.planes[RIGHT_PLANE].c = view_projection_mat->mat[2][3] - view_projection_mat->mat[2][0];
+    camera->frustum.planes[RIGHT_PLANE].d = view_projection_mat->mat[3][3] - view_projection_mat->mat[3][0];
+
+    camera->frustum.planes[BOTTOM_PLANE].a = view_projection_mat->mat[0][3] + view_projection_mat->mat[0][1];
+    camera->frustum.planes[BOTTOM_PLANE].b = view_projection_mat->mat[1][3] + view_projection_mat->mat[1][1];
+    camera->frustum.planes[BOTTOM_PLANE].c = view_projection_mat->mat[2][3] + view_projection_mat->mat[2][1];
+    camera->frustum.planes[BOTTOM_PLANE].d = view_projection_mat->mat[3][3] + view_projection_mat->mat[3][1];
+
+    camera->frustum.planes[TOP_PLANE].a = view_projection_mat->mat[0][3] - view_projection_mat->mat[0][1];
+    camera->frustum.planes[TOP_PLANE].b = view_projection_mat->mat[1][3] - view_projection_mat->mat[1][1];
+    camera->frustum.planes[TOP_PLANE].c = view_projection_mat->mat[2][3] - view_projection_mat->mat[2][1];
+    camera->frustum.planes[TOP_PLANE].d = view_projection_mat->mat[3][3] - view_projection_mat->mat[3][1];
+
+    camera->frustum.planes[NEAR_PLANE].a = view_projection_mat->mat[0][3] + view_projection_mat->mat[0][2];
+    camera->frustum.planes[NEAR_PLANE].b = view_projection_mat->mat[1][3] + view_projection_mat->mat[1][2];
+    camera->frustum.planes[NEAR_PLANE].c = view_projection_mat->mat[2][3] + view_projection_mat->mat[2][2];
+    camera->frustum.planes[NEAR_PLANE].d = view_projection_mat->mat[3][3] + view_projection_mat->mat[3][2];
+
+    camera->frustum.planes[FAR_PLANE].a = view_projection_mat->mat[0][3] - view_projection_mat->mat[0][2];
+    camera->frustum.planes[FAR_PLANE].b = view_projection_mat->mat[1][3] - view_projection_mat->mat[1][2];
+    camera->frustum.planes[FAR_PLANE].c = view_projection_mat->mat[2][3] - view_projection_mat->mat[2][2];
+    camera->frustum.planes[FAR_PLANE].d = view_projection_mat->mat[3][3] - view_projection_mat->mat[3][2];
 }
 
 void perspective(float *angle_of_view, float *aspect_ratio, float *near, float *far, float *bottom, float *top, float *left, float *right) {

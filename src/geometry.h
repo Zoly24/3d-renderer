@@ -1,6 +1,15 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+typedef enum TypePlanes {
+    LEFT_PLANE,
+    RIGHT_PLANE,
+    BOTTOM_PLANE,
+    TOP_PLANE,
+    NEAR_PLANE,
+    FAR_PLANE
+} pType;
+
 typedef struct fMatrix44 {
     float mat[4][4];
 } fMatrix44;
@@ -74,6 +83,8 @@ fMatrix44 *sub_fmatrix44(fMatrix44 *, fMatrix44 *);
 fMatrix44 *mult_fmatrix44(fMatrix44 *, fMatrix44 *);
 
 void multiply_fvec3_matrix44(fVec3 *, fVec3 *, fMatrix44 *);
+
+int plane_distance_to_fvec3(fPlane, fVec3 *);
 
 void print_matrix(fMatrix44 *);
 
