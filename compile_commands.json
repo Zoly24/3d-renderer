@@ -1,0 +1,56 @@
+[
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/main.c.o -c /home/zoly/Documents/3d-renderer/src/main.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/main.c",
+  "output": "CMakeFiles/renderer.dir/src/main.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/triangle.c.o -c /home/zoly/Documents/3d-renderer/src/triangle.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/triangle.c",
+  "output": "CMakeFiles/renderer.dir/src/triangle.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/camera.c.o -c /home/zoly/Documents/3d-renderer/src/camera.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/camera.c",
+  "output": "CMakeFiles/renderer.dir/src/camera.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/obj_reader.c.o -c /home/zoly/Documents/3d-renderer/src/obj_reader.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/obj_reader.c",
+  "output": "CMakeFiles/renderer.dir/src/obj_reader.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/geometry.c.o -c /home/zoly/Documents/3d-renderer/src/geometry.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/geometry.c",
+  "output": "CMakeFiles/renderer.dir/src/geometry.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/line.c.o -c /home/zoly/Documents/3d-renderer/src/line.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/line.c",
+  "output": "CMakeFiles/renderer.dir/src/line.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/model.c.o -c /home/zoly/Documents/3d-renderer/src/model.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/model.c",
+  "output": "CMakeFiles/renderer.dir/src/model.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/transform.c.o -c /home/zoly/Documents/3d-renderer/src/transform.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/transform.c",
+  "output": "CMakeFiles/renderer.dir/src/transform.c.o"
+},
+{
+  "directory": "/home/zoly/Documents/3d-renderer/build",
+  "command": "/usr/bin/cc  -I/home/zoly/Documents/3d-renderer/include -g -g -Wall -Wextra -std=gnu11 -o CMakeFiles/renderer.dir/src/input.c.o -c /home/zoly/Documents/3d-renderer/src/input.c",
+  "file": "/home/zoly/Documents/3d-renderer/src/input.c",
+  "output": "CMakeFiles/renderer.dir/src/input.c.o"
+}
+]

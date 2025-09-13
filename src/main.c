@@ -6,9 +6,7 @@
   arising from the use of this software.
 
   Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely.
-*/
+  including commercial applications, and to alter it and redistribute it freely. */
 #include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keyboard.h>

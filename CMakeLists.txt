@@ -35,7 +35,7 @@ set(SOURCE_FILES
 add_executable(renderer ${SOURCE_FILES})
 
 # Include your own headers
-target_include_directories(renderer PRIVATE src)
+target_include_directories(renderer PRIVATE include)
 
 # Link SDL3 (modern target) — this includes headers and libs
 target_link_libraries(renderer PRIVATE SDL3::SDL3 m)
