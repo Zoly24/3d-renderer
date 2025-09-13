@@ -11,8 +11,10 @@ ModelObject *create_model_object(Mesh *mesh) {
         return NULL;
     }
 
+    // Store its own model matrix
     model->model_mat = create_identity_fmatrix44();
 
+    // Store the mesh we generated
     model->mesh = mesh;
 
     model->transform.position = create_translation_vec(0.0f, 0.0f, 0.0f);

@@ -94,14 +94,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) { /* Create t
         return SDL_APP_FAILURE;
     }
 
+    // Get mouse
     SDL_SetWindowMouseGrab(window, 1);
     SDL_SetWindowRelativeMouseMode(window, 1);
 
+    // Initialize current tick
     current_tick = 0;
 
+    // More initialization
     initialize_user_input();
     initialize_camera();
 
+    // Initialize the model
     result = initialize_objects();
 
     if (result == SDL_APP_FAILURE) {
@@ -123,6 +127,7 @@ static SDL_AppResult initialize_rendering_pipeline() {
 }
 
 static SDL_AppResult initialize_user_input() {
+    // Initialize the user's input
     input = create_user_input();
     if (!input) {
         printf("Could not allocate input mem, quitting");
@@ -133,12 +138,15 @@ static SDL_AppResult initialize_user_input() {
 }
 
 static SDL_AppResult initialize_camera() {
+    // Create a new user camera
     camera = create_camera();
+
     // Position and target
     camera->camera_position = create_fvec3(0.0f, 0.0f, 3.0f);
     camera->camera_front = create_fvec3(0.0f, 0.0f, -1.0f);
     camera->camera_up = create_fvec3(0.0f, 1.0f, 0.0f);
 
+    // Tweaked look_at function
     camera_look_at_front(camera, camera->camera_position, camera->camera_front, camera->camera_up);
 
     if (!camera) {
@@ -162,6 +170,7 @@ static SDL_AppResult initialize_objects() {
         return SDL_APP_FAILURE;
     }
 
+    // Create the new mesh
     generate_mesh(file, mesh);
     model = create_model_object(mesh);
     if (!model) {
@@ -191,48 +200,53 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     delta_tick = (double)((current_tick - last_tick) * 1000 / (double)SDL_GetPerformanceFrequency());
 
+    // Make sure the update what the user has done BEFORE updating screen
     update_user_input(input);
     run_program();
+
     return SDL_APP_CONTINUE;
 }
 
 void update_user_input(UserInput *input) {
     input->keyboard_state = SDL_GetKeyboardState(NULL);
     uint32_t mouse_button;
-    float lastx;
-    float lasty;
+
+    // Get the mouse button pressed
     if (first_mouse_read) {
         mouse_button = SDL_GetMouseState(&input->cursorx, &input->cursory);
-        lastx = input->cursorx;
-        lasty = input->cursory;
         first_mouse_read = 0;
     } else {
-        lastx = input->cursorx;
-        lasty = input->cursory;
         mouse_button = SDL_GetMouseState(&input->cursorx, &input->cursory);
     }
 
+    // Get how far the cursor went in x and y
     float xoffset = input->cursorx - SCREEN_WIDTH / 2.0f;
     float yoffset = SCREEN_HEIGHT / 2.0f - input->cursory;
 
+    // Sensitivity for slower or faster movement
     float sensitivity = 0.1f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
+    // Add to the current yaw and pitch of the UserCamera
     yaw += xoffset;
     pitch += yoffset;
 
+    // Readjust back to the middle of the window
     SDL_WarpMouseInWindow(window, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
 
+    // Lock so that they do not further than usual up or down
     if (pitch > 89.0f)
         pitch = 89.0f;
     if (pitch < -89.0f)
         pitch = -89.0f;
 
+    // Calcuations for what we are now looking at
     camera->camera_front->x = cos(convert_deg_to_rad(yaw)) * cos(convert_deg_to_rad(pitch));
     camera->camera_front->y = sin(convert_deg_to_rad(pitch));
     camera->camera_front->z = sin(convert_deg_to_rad(yaw)) * cos(convert_deg_to_rad(pitch));
 
+    // Normalize movement speed based on current tick
     float adjusted_movement_speed = delta_tick * MOVEMENT_SPEED_MULTIPLIER;
 
     if (input->keyboard_state[SDL_SCANCODE_W]) {
@@ -265,6 +279,7 @@ void update_user_input(UserInput *input) {
         free(right);
     }
 
+    // Update the new look at function with the new parameters from the buttons/movments
     camera_look_at_front(camera, camera->camera_position, camera->camera_front, camera->camera_up);
 }
 
@@ -292,13 +307,15 @@ void run_program() {
 }
 
 void clear_screen() {
+    // Wipe screen for new draw
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 }
 
 void update_fps() {
+    // Calculate the current fps from this and prev tick times
     uint64_t current_time = SDL_GetTicksNS();
-    uint64_t delta_time_ns = current_time - last_frame_time;
     last_frame_time = current_time;
 
     frame_count++;
@@ -313,11 +330,13 @@ void update_fps() {
 }
 
 void update_model_transforms() {
+    // New function for future when getting more objects
     update_model_mat(model);
 }
 
 void render_scene() {
     int inside;
+    // Make sure that the model is inside the camera frustum
     if ((inside = render_bounding_box(model)) == INSIDE_FRUSTUM || inside == INTERSECT_FRUSTUM) {
         render_model_geometry(model);
     }
@@ -325,6 +344,7 @@ void render_scene() {
 
 int render_bounding_box(ModelObject *model) {
     int result = INSIDE_FRUSTUM;
+    // IF one vec is out, then it intersects, if all, then it is outside frustum
     for (int i = 0; i < NUM_FRUSTUM_PLANES; i++) {
         int num_vertex_out = 0;
         int num_vertex_in = 0;
@@ -347,12 +367,16 @@ int render_bounding_box(ModelObject *model) {
 }
 
 void render_model_geometry(ModelObject *model) {
+    // Retrieve our model mesh linked list
     VecConnectionsPoints *triangle = model->mesh->head;
+
+    // Store triangles in here to only call render_line once
     iVec2 **batch_triangles = calloc(model->mesh->num_triangles, sizeof(iVec2 *));
     for (int i = 0; i < model->mesh->num_triangles; i++) {
         batch_triangles[i] = calloc(NUM_TRIANGLE_VERTEX, sizeof(iVec2));
     }
 
+    // Number of triangles we have
     int triangle_idx = 0;
 
     while (triangle != NULL) {
@@ -370,6 +394,7 @@ void render_model_geometry(ModelObject *model) {
 }
 
 void render_triangle(VecConnectionsPoints *triangle_data, iVec2 **batch_triangles, int *triangle_idx) {
+    // See if the triangle has all points inside of the frustum
     iVec2 *screen_points[NUM_TRIANGLE_VERTEX];
     for (int i = 0; i < NUM_TRIANGLE_VERTEX; i++) {
         screen_points[i] = project_3d_to_2d(triangle_data->triangle_points[i]);
@@ -381,6 +406,7 @@ void render_triangle(VecConnectionsPoints *triangle_data, iVec2 **batch_triangle
         }
     }
 
+    // Check winding order to determine if front or not
     if (is_front_facing(screen_points)) {
         batch_triangles[*triangle_idx][0] = *screen_points[0];
         batch_triangles[*triangle_idx][1] = *screen_points[1];
@@ -410,9 +436,11 @@ int determine_winding_order(iVec2 **arr) {
 }
 
 void render_normal_vector(VecConnectionsPoints *triangle_data, iVec2 **screen_points) {
+    // Get center of triangle and normalize it to length of one
     fVec3 *centroid_fvec3 = calculate_triangle_centroid(triangle_data->triangle_points);
     fVec3 *endpoint_fvec3 = calculate_normal_endpoint(centroid_fvec3, triangle_data->surface_normal);
 
+    // Draw the lines
     iVec2 *centroid_ivec2 = project_3d_to_2d(centroid_fvec3);
     iVec2 *endpoint_ivec2 = project_3d_to_2d(endpoint_fvec3);
 
@@ -445,8 +473,8 @@ fVec3 *calculate_normal_endpoint(fVec3 *centroid, fVec3 *surface_normal) {
 }
 
 iVec2 *project_3d_to_2d(fVec3 *p) {
+    // Generate camera_space for the vector
     fVec3 *camera_space = create_fvec3(0, 0, 0);
-
     multiply_fvec3_matrix44(p, camera_space, camera->camera_mat);
 
     // Prevents from going into model and flipping inverted
@@ -455,6 +483,7 @@ iVec2 *project_3d_to_2d(fVec3 *p) {
         return NULL;
     }
 
+    // Turn to clip_space (sort of liek NDC)
     fVec3 *clip_space = create_fvec3(0, 0, 0);
     multiply_fvec3_matrix44(camera_space, clip_space, camera->projection_mat);
 
@@ -468,9 +497,11 @@ iVec2 *project_3d_to_2d(fVec3 *p) {
         return NULL;
     }
 
+    // Calculate the x and y from the clip space
     int x = (int)((clip_space->x + 1.0f) * 0.5f * SCREEN_WIDTH);
     int y = (int)((1.0f - (clip_space->y + 1.0f) * 0.5f) * SCREEN_HEIGHT);
 
+    // Make sure the x and y are inside view
     if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) {
         z_buffer[y * SCREEN_WIDTH + x] = (int)(clip_space->z * 255);
     }

@@ -23,17 +23,23 @@ FILE *open_file(char *filename) {
 void generate_mesh(FILE *file, Mesh *mesh) {
     int *vertex_att = parse_vertex_attributes(file);
 
+    // Store vertex attribute counts into the mesh
     mesh->vec_count = vertex_att[VERTEX];
     mesh->face_count = vertex_att[FACE];
     mesh->vec_texture_count = vertex_att[VERTEX_TEXTURE];
     mesh->vec_normal_count = vertex_att[VERTEX_NORMAL];
 
+    // Make vec array for each vertex
     mesh->vec_arr = (fVec3 *)malloc(mesh->vec_count * sizeof(fVec3));
+
+    // Initialize Linked List of VecConnectionsPoints
     mesh->head = NULL;
 
+    // Restart and populate the verticies array
     rewind(file);
     populate_vertices_arr(file, mesh);
 
+    // Restart and obtain the vertex connections
     rewind(file);
     parse_vertex_connections(file, mesh);
 }
@@ -42,9 +48,8 @@ int *parse_vertex_attributes(FILE *file) {
     int *vertex_att = (int *)calloc(FACE + 1, sizeof(int));
 
     char buffer[MAX_BUFFER_SIZE];
-    int vertex_count = 0;
-    int face_count = 0;
 
+    // Counter for each attribute
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if (strncmp(buffer, "v ", 2) == 0) {
             vertex_att[VERTEX]++;
@@ -77,14 +82,18 @@ void populate_vertices_arr(FILE *file, Mesh *mesh) {
     float maxz = FLT_MIN;
 
     int i = 0;
+    // Get x, y, and z
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if (strncmp(buffer, "v ", 2) == 0) {
             float x;
             float y;
             float z;
             int parsed = sscanf(buffer, "v %f %f %f", &x, &y, &z);
+
+            // Determine max and mins for bounding box
             determine_min_max(&minx, &miny, &minz, &maxx, &maxy, &maxz, x, y, z);
 
+            // Put x, y, z into the mesh
             if (parsed == NUM_TRIANGLE_VERTEX) {
                 (mesh->vec_arr + i)->x = x;
                 (mesh->vec_arr + i)->y = y;
@@ -94,6 +103,7 @@ void populate_vertices_arr(FILE *file, Mesh *mesh) {
         }
     }
 
+    // Define the boudning box
     define_bounding_box(mesh, minx, maxx, miny, maxy, minz, maxz);
 }
 
@@ -120,6 +130,7 @@ void determine_min_max(float *minx, float *miny, float *minz, float *maxx, float
 }
 
 void define_bounding_box(Mesh *mesh, float minx, float maxx, float miny, float maxy, float minz, float maxz) {
+    // Egotistic code for calculating the bounding box using bit operations
     for (int i = 0; i < NUM_BOUNDING_BOX_VERTEX; i++) {
         mesh->bounding_box_vec[i] = create_fvec3(0, 0, 0);
         int maskx = 4;
@@ -148,18 +159,20 @@ void define_bounding_box(Mesh *mesh, float minx, float maxx, float miny, float m
 
 void parse_vertex_connections(FILE *file, Mesh *mesh) {
     char buffer[MAX_BUFFER_SIZE];
-    int idx = 0;
 
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if ((strncmp(buffer, "f ", 2)) == 0) {
+            // Duplicate string twice
             char *line1 = strdup(buffer + 2);
             char *line2 = strdup(buffer + 2);
 
+            // Create two save pointers
             char *saveptr1;
             char *saveptr2;
 
             int vertex_groups = 0;
 
+            // Count number of groups in current line (connections)
             char *token1 = strtok_r(line1, " \n\r", &saveptr1);
             while (token1 != NULL) {
                 vertex_groups++;
@@ -184,7 +197,7 @@ void parse_vertex_connections(FILE *file, Mesh *mesh) {
                 int v_idx = 0;
                 int vt_idx = 0;
                 int vn_idx = 0;
-
+                // If statement for all cases that the attributes can be in
                 if (sscanf(sub_token, "%d/%d/%d", &v_idx, &vt_idx, &vn_idx) == 3) {
                     v_att_arr[temp_idx] = v_idx;
                     vt_att_arr[temp_idx] = vt_idx;
@@ -207,9 +220,11 @@ void parse_vertex_connections(FILE *file, Mesh *mesh) {
                 temp_idx++;
             }
 
+            // Number of triangles is the number of vertecies - 2
             mesh->num_triangles += temp_idx - 2;
 
             populate_vertex_connections(v_att_arr, vertex_groups, mesh);
+
             free(line1);
             free(line2);
 
@@ -217,11 +232,11 @@ void parse_vertex_connections(FILE *file, Mesh *mesh) {
             free(vt_att_arr);
             free(vn_att_arr);
         }
-        idx++;
     }
 }
 
 void populate_vertex_connections(int *v_att_arr, int vertex_groups, Mesh *mesh) {
+    // Create a VecConnectionsPoints and add it to the linked list
     for (int i = 2; i < vertex_groups; i++) {
         VecConnectionsPoints *current_vec = (VecConnectionsPoints *)malloc(sizeof(VecConnectionsPoints));
         // attributes have 1 based indexing and vec_arr is 0 based indexing

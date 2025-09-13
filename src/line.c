@@ -19,6 +19,8 @@ Line *create_line(iVec2 *start, iVec2 *end) {
 }
 
 void render_line(SDL_Renderer *renderer, iVec2 *start, iVec2 *end) {
+    // Bresenham's line algorithm
+
     int x0 = start->x;
     int x1 = end->x;
     int y0 = start->y;

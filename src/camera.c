@@ -41,9 +41,11 @@ void camera_look_at(UserCamera *camera, fVec3 *eye, fVec3 *target, fVec3 *up) {
     // Find direction camera is looking at
     fVec3 *camera_direction = sub_fvec3(eye, target);
     normalize_fvec3(camera_direction);
+
     // Generate the right (x) of the camera
     fVec3 *camera_right = cross_fvec3(up, camera_direction);
     normalize_fvec3(camera_right);
+
     // Genearete the up (y) of the camera
     fVec3 *camera_up = cross_fvec3(camera_direction, camera_right);
     normalize_fvec3(camera_up);
