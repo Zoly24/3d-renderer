@@ -19,6 +19,7 @@ The main goal of this project was to learn about 3D graphics and the rendering p
 - Bresenham's Line Algorithm for line rasterization and triangle creation
 - Backface culling using winding order
 - Frustum culling using Hartmann & Gribbs frustum plane extraction and bounding boxes
+- Homogeneous Clip Space Clipping using Sutherland-Hodgman Algorithm
 - SDL3 for window and input handling
 
 ---
@@ -75,8 +76,9 @@ The renderer follows conventional 3D rendering pipeline:
 | Model Matrix       |                                  Transform model into world space |
 | View Matrix        |                Transform world space into the view space (camera) |
 | Projection Matrix  |  Transform the view into (orthographic or perspective) projection |
-| Viewport Transform |                                Transform 3d points into 2d points |
+| Viewport Transform |                    Transform 3d points into 2d screen coordinates |
 | Rasterize Lines    |                                  Generate lines and for triangles |
+| Culling/Clipping   |   Optimizing performance by removing triangles not in camera view |
 
 No external libraries to calculate matrix, vector, or transformation math. Everything was implemented in C.
 

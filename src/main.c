@@ -141,8 +141,8 @@ static SDL_AppResult initialize_objects() {
         return SDL_APP_FAILURE;
     }
 
-    // FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/Cube/Cube.obj");
-    FILE *file = open_file("/home/zoly/Documents/obj-assets/sword-futuristic/Futuristic_Sword_Upload.obj");
+    FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/Cube/Cube.obj");
+    // FILE *file = open_file("/home/zoly/Documents/obj-assets/sword-futuristic/Futuristic_Sword_Upload.obj");
     if (!file) {
         printf("Could not open file");
         return SDL_APP_FAILURE;
