@@ -13,7 +13,7 @@ typedef struct triangle {
 
 Triangle *create_triangle(SDL_Renderer *, iVec2 *, iVec2 *, iVec2 *);
 void draw_triangle(SDL_Renderer *, iVec2 *, iVec2 *, iVec2 *);
-void batch_draw_triangles(SDL_Renderer *, int, iVec2 **);
+void batch_draw_triangles(SDL_Renderer *, int, iVec2 *);
 void populate_uv_map(Triangle *);
 void fill_triangle(SDL_Renderer *, SDL_Color *, Triangle *, float *, int, int);
 

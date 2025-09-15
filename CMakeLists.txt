@@ -29,6 +29,7 @@ set(SOURCE_FILES
     src/model.c
     src/transform.c
     src/input.c
+    src/render_pipeline.c
 )
 
 # Create executable

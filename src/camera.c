@@ -36,19 +36,19 @@ UserCamera *create_camera() {
     return camera;
 }
 
-void camera_look_at(UserCamera *camera, fVec3 *eye, fVec3 *target, fVec3 *up) {
+void camera_look_at(UserCamera *camera, fVec4 *eye, fVec4 *target, fVec4 *up) {
 
     // Find direction camera is looking at
-    fVec3 *camera_direction = sub_fvec3(eye, target);
-    normalize_fvec3(camera_direction);
+    fVec4 *camera_direction = sub_fvec4(eye, target);
+    normalize_fvec4(camera_direction);
 
     // Generate the right (x) of the camera
-    fVec3 *camera_right = cross_fvec3(up, camera_direction);
-    normalize_fvec3(camera_right);
+    fVec4 *camera_right = cross_fvec4(up, camera_direction);
+    normalize_fvec4(camera_right);
 
     // Genearete the up (y) of the camera
-    fVec3 *camera_up = cross_fvec3(camera_direction, camera_right);
-    normalize_fvec3(camera_up);
+    fVec4 *camera_up = cross_fvec4(camera_direction, camera_right);
+    normalize_fvec4(camera_up);
 
     fMatrix44 *translation_mat = create_identity_fmatrix44();
     translation_mat->mat[3][0] = -eye->x;
@@ -82,8 +82,8 @@ void camera_look_at(UserCamera *camera, fVec3 *eye, fVec3 *target, fVec3 *up) {
     free(camera_right);
 }
 
-void camera_look_at_front(UserCamera *camera, fVec3 *eye, fVec3 *front, fVec3 *up) {
-    fVec3 *target = add_fvec3(eye, front);
+void camera_look_at_front(UserCamera *camera, fVec4 *eye, fVec4 *front, fVec4 *up) {
+    fVec4 *target = add_fvec4(eye, front);
     camera_look_at(camera, eye, target, up);
     free(target);
 }

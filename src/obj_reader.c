@@ -30,7 +30,7 @@ void generate_mesh(FILE *file, Mesh *mesh) {
     mesh->vec_normal_count = vertex_att[VERTEX_NORMAL];
 
     // Make vec array for each vertex
-    mesh->vec_arr = (fVec3 *)malloc(mesh->vec_count * sizeof(fVec3));
+    mesh->vec_arr = (fVec4 *)malloc(mesh->vec_count * sizeof(fVec4));
 
     // Initialize Linked List of VecConnectionsPoints
     mesh->head = NULL;
@@ -132,7 +132,7 @@ void determine_min_max(float *minx, float *miny, float *minz, float *maxx, float
 void define_bounding_box(Mesh *mesh, float minx, float maxx, float miny, float maxy, float minz, float maxz) {
     // Egotistic code for calculating the bounding box using bit operations
     for (int i = 0; i < NUM_BOUNDING_BOX_VERTEX; i++) {
-        mesh->bounding_box_vec[i] = create_fvec3(0, 0, 0);
+        mesh->bounding_box_vec[i] = create_fvec4(0, 0, 0, 1.0f);
         int maskx = 4;
         int masky = 2;
         int maskz = 1;
@@ -251,12 +251,12 @@ void populate_vertex_connections(int *v_att_arr, int vertex_groups, Mesh *mesh) 
     }
 }
 
-void calculate_surface_normal(VecConnectionsPoints *current_vec, fVec3 *a, fVec3 *b, fVec3 *c) {
-    fVec3 *v1 = sub_fvec3(a, b);
-    fVec3 *v2 = sub_fvec3(a, c);
+void calculate_surface_normal(VecConnectionsPoints *current_vec, fVec4 *a, fVec4 *b, fVec4 *c) {
+    fVec4 *v1 = sub_fvec4(a, b);
+    fVec4 *v2 = sub_fvec4(a, c);
 
-    current_vec->surface_normal = cross_fvec3(v1, v2);
-    normalize_fvec3(current_vec->surface_normal);
+    current_vec->surface_normal = cross_fvec4(v1, v2);
+    normalize_fvec4(current_vec->surface_normal);
 
     free(v1);
     free(v2);

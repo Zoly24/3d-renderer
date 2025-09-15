@@ -31,6 +31,7 @@
 #include "line.h"
 #include "model.h"
 #include "obj_reader.h"
+#include "render_pipeline.h"
 #include "triangle.h"
 
 static SDL_Window *window = NULL;
@@ -49,36 +50,12 @@ int first_mouse_read = 1;
 
 uint8_t *z_buffer;
 
-uint64_t last_frame_time = 0;
-uint32_t frame_count = 0;
-uint64_t last_fps_update = 0;
-float fps = 0.0f;
-
 Mesh *mesh;
 ModelObject *model;
 
 void update_user_input(UserInput *);
 void run_program(void);
 void test_functions(void);
-
-void clear_screen(void);
-void update_fps(void);
-void update_model_transforms(void);
-void render_scene(void);
-int is_model_in_frustum(ModelObject *);
-int is_point_in_frustum(fVec3 *);
-fVec3 *transform_point_to_clip_space(fVec3 *);
-int render_bounding_box(ModelObject *);
-void render_model_geometry(ModelObject *);
-void render_triangle(VecConnectionsPoints *, iVec2 **, int *);
-int is_front_facing(iVec2 **);
-void render_normal_vector(VecConnectionsPoints *, iVec2 **);
-fVec3 *calculate_triangle_centroid(fVec3 *[3]);
-fVec3 *calculate_normal_endpoint(fVec3 *, fVec3 *);
-
-iVec2 *project_3d_to_2d(fVec3 *);
-int determine_winding_order(iVec2 **);
-int determine_bounding_box(ModelObject *);
 
 static SDL_AppResult initialize_rendering_pipeline(void);
 static SDL_AppResult initialize_user_input(void);
@@ -142,9 +119,9 @@ static SDL_AppResult initialize_camera() {
     camera = create_camera();
 
     // Position and target
-    camera->camera_position = create_fvec3(0.0f, 0.0f, 3.0f);
-    camera->camera_front = create_fvec3(0.0f, 0.0f, -1.0f);
-    camera->camera_up = create_fvec3(0.0f, 1.0f, 0.0f);
+    camera->camera_position = create_fvec4(0.0f, 0.0f, 3.0f, 1.0f);
+    camera->camera_front = create_fvec4(0.0f, 0.0f, -1.0f, 1.0f);
+    camera->camera_up = create_fvec4(0.0f, 1.0f, 0.0f, 1.0f);
 
     // Tweaked look_at function
     camera_look_at_front(camera, camera->camera_position, camera->camera_front, camera->camera_up);
@@ -164,7 +141,8 @@ static SDL_AppResult initialize_objects() {
         return SDL_APP_FAILURE;
     }
 
-    FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/Cube/Cube.obj");
+    // FILE *file = open_file("/home/zoly/Documents/3d-renderer/assets/Cube/Cube.obj");
+    FILE *file = open_file("/home/zoly/Documents/obj-assets/sword-futuristic/Futuristic_Sword_Upload.obj");
     if (!file) {
         printf("Could not open file");
         return SDL_APP_FAILURE;
@@ -256,8 +234,8 @@ void update_user_input(UserInput *input) {
     }
 
     if (input->keyboard_state[SDL_SCANCODE_A]) {
-        fVec3 *right = cross_fvec3(camera->camera_front, camera->camera_up);
-        normalize_fvec3(right);
+        fVec4 *right = cross_fvec4(camera->camera_front, camera->camera_up);
+        normalize_fvec4(right);
         camera->camera_position->x -= right->x * adjusted_movement_speed;
         camera->camera_position->y -= right->y * adjusted_movement_speed;
         camera->camera_position->z -= right->z * adjusted_movement_speed;
@@ -271,8 +249,8 @@ void update_user_input(UserInput *input) {
     }
 
     if (input->keyboard_state[SDL_SCANCODE_D]) {
-        fVec3 *right = cross_fvec3(camera->camera_front, camera->camera_up);
-        normalize_fvec3(right);
+        fVec4 *right = cross_fvec4(camera->camera_front, camera->camera_up);
+        normalize_fvec4(right);
         camera->camera_position->x += right->x * adjusted_movement_speed;
         camera->camera_position->y += right->y * adjusted_movement_speed;
         camera->camera_position->z += right->z * adjusted_movement_speed;
@@ -298,218 +276,12 @@ void test_functions() {
 }
 
 void run_program() {
-    clear_screen();
+    clear_screen(renderer);
     update_fps();
-    update_frustum_planes(camera);
-    update_model_transforms();
-    render_scene();
+
+    execute_render_pipeline(renderer, model, camera);
+
     SDL_RenderPresent(renderer);
-}
-
-void clear_screen() {
-    // Wipe screen for new draw
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-}
-
-void update_fps() {
-    // Calculate the current fps from this and prev tick times
-    uint64_t current_time = SDL_GetTicksNS();
-    last_frame_time = current_time;
-
-    frame_count++;
-
-    if (current_time - last_fps_update >= NS_TO_SEC_INT) {
-        fps = (float)frame_count / ((current_time - last_fps_update) / NS_TO_SEC_FLOAT);
-        printf("FPS: %.2f\n", fps);
-
-        frame_count = 0;
-        last_fps_update = current_time;
-    }
-}
-
-void update_model_transforms() {
-    // New function for future when getting more objects
-    update_model_mat(model);
-}
-
-void render_scene() {
-    int inside;
-    // Make sure that the model is inside the camera frustum
-    if ((inside = render_bounding_box(model)) == INSIDE_FRUSTUM || inside == INTERSECT_FRUSTUM) {
-        render_model_geometry(model);
-    }
-}
-
-int render_bounding_box(ModelObject *model) {
-    int result = INSIDE_FRUSTUM;
-    // IF one vec is out, then it intersects, if all, then it is outside frustum
-    for (int i = 0; i < NUM_FRUSTUM_PLANES; i++) {
-        int num_vertex_out = 0;
-        int num_vertex_in = 0;
-        for (int j = 0; j < NUM_BOUNDING_BOX_VERTEX && (num_vertex_out == 0 || num_vertex_in == 0); j++) {
-            if (plane_distance_to_fvec3(camera->frustum.planes[i], model->mesh->bounding_box_vec[j]) == NEGATIVE_OF_PLANE) {
-                num_vertex_out++;
-            } else {
-                num_vertex_in++;
-            }
-        }
-
-        if (!num_vertex_in) {
-            return OUTSIDE_FRUSTUM;
-        } else if (num_vertex_out) {
-            result = INTERSECT_FRUSTUM;
-        }
-    }
-
-    return result;
-}
-
-void render_model_geometry(ModelObject *model) {
-    // Retrieve our model mesh linked list
-    VecConnectionsPoints *triangle = model->mesh->head;
-
-    // Store triangles in here to only call render_line once
-    iVec2 **batch_triangles = calloc(model->mesh->num_triangles, sizeof(iVec2 *));
-    for (int i = 0; i < model->mesh->num_triangles; i++) {
-        batch_triangles[i] = calloc(NUM_TRIANGLE_VERTEX, sizeof(iVec2));
-    }
-
-    // Number of triangles we have
-    int triangle_idx = 0;
-
-    while (triangle != NULL) {
-        render_triangle(triangle, batch_triangles, &triangle_idx);
-        triangle = triangle->next;
-    }
-
-    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-
-    batch_draw_triangles(renderer, triangle_idx, batch_triangles);
-    for (int i = 0; i < model->mesh->num_triangles; i++) {
-        free(batch_triangles[i]);
-    }
-    free(batch_triangles);
-}
-
-void render_triangle(VecConnectionsPoints *triangle_data, iVec2 **batch_triangles, int *triangle_idx) {
-    // See if the triangle has all points inside of the frustum
-    iVec2 *screen_points[NUM_TRIANGLE_VERTEX];
-    for (int i = 0; i < NUM_TRIANGLE_VERTEX; i++) {
-        screen_points[i] = project_3d_to_2d(triangle_data->triangle_points[i]);
-        if (!screen_points[i]) {
-            for (int j = 0; j < i; j++) {
-                free(screen_points[j]);
-            }
-            return;
-        }
-    }
-
-    // Check winding order to determine if front or not
-    if (is_front_facing(screen_points)) {
-        batch_triangles[*triangle_idx][0] = *screen_points[0];
-        batch_triangles[*triangle_idx][1] = *screen_points[1];
-        batch_triangles[*triangle_idx][2] = *screen_points[2];
-
-        render_normal_vector(triangle_data, screen_points);
-        *triangle_idx += 1;
-    }
-
-    for (int i = 0; i < NUM_TRIANGLE_VERTEX; i++) {
-        free(screen_points[i]);
-    }
-}
-
-int is_front_facing(iVec2 **screen_points) {
-    int winding = determine_winding_order(screen_points);
-    return winding < 0;
-}
-
-int determine_winding_order(iVec2 **arr) {
-    return ((arr[0]->x * arr[1]->y) -
-            (arr[1]->x * arr[0]->y)) +
-           ((arr[1]->x * arr[2]->y) -
-            (arr[2]->x * arr[1]->y)) +
-           ((arr[2]->x * arr[0]->y) -
-            (arr[0]->x * arr[2]->y));
-}
-
-void render_normal_vector(VecConnectionsPoints *triangle_data, iVec2 **screen_points) {
-    // Get center of triangle and normalize it to length of one
-    fVec3 *centroid_fvec3 = calculate_triangle_centroid(triangle_data->triangle_points);
-    fVec3 *endpoint_fvec3 = calculate_normal_endpoint(centroid_fvec3, triangle_data->surface_normal);
-
-    // Draw the lines
-    iVec2 *centroid_ivec2 = project_3d_to_2d(centroid_fvec3);
-    iVec2 *endpoint_ivec2 = project_3d_to_2d(endpoint_fvec3);
-
-    if (centroid_ivec2 && endpoint_ivec2) {
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        render_line(renderer, centroid_ivec2, endpoint_ivec2);
-    }
-
-    free(centroid_fvec3);
-    free(endpoint_fvec3);
-    free(centroid_ivec2);
-    free(endpoint_ivec2);
-}
-
-fVec3 *calculate_triangle_centroid(fVec3 *triangle_points[3]) {
-    fVec3 *centroid = add_fvec3(triangle_points[0], triangle_points[1]);
-    add_fvec3_in_place(centroid, triangle_points[2]);
-    scale_fvec3_in_place(centroid, 1.0f / 3.0f);
-
-    return centroid;
-}
-
-fVec3 *calculate_normal_endpoint(fVec3 *centroid, fVec3 *surface_normal) {
-    fVec3 *scale_normal = scale_fvec3(surface_normal, NORMAL_VECTOR_LENGTH);
-    fVec3 *endpoint = add_fvec3(centroid, scale_normal);
-
-    free(scale_normal);
-
-    return endpoint;
-}
-
-iVec2 *project_3d_to_2d(fVec3 *p) {
-    // Generate camera_space for the vector
-    fVec3 *camera_space = create_fvec3(0, 0, 0);
-    multiply_fvec3_matrix44(p, camera_space, camera->camera_mat);
-
-    // Prevents from going into model and flipping inverted
-    if (camera_space->z > camera->settings.near) {
-        free(camera_space);
-        return NULL;
-    }
-
-    // Turn to clip_space (sort of liek NDC)
-    fVec3 *clip_space = create_fvec3(0, 0, 0);
-    multiply_fvec3_matrix44(camera_space, clip_space, camera->projection_mat);
-
-    // NOTE: Clip_space is normalized to -1, 1 for x and -1, 1 for y (kinda like NDC space)
-    if (clip_space->x < -1 ||
-        clip_space->x > 1 ||
-        clip_space->y < -1 ||
-        clip_space->y > 1) {
-        free(camera_space);
-        free(clip_space);
-        return NULL;
-    }
-
-    // Calculate the x and y from the clip space
-    int x = (int)((clip_space->x + 1.0f) * 0.5f * SCREEN_WIDTH);
-    int y = (int)((1.0f - (clip_space->y + 1.0f) * 0.5f) * SCREEN_HEIGHT);
-
-    // Make sure the x and y are inside view
-    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) {
-        z_buffer[y * SCREEN_WIDTH + x] = (int)(clip_space->z * 255);
-    }
-
-    free(camera_space);
-    free(clip_space);
-
-    return create_ivec2(x, y);
 }
 
 /* This function runs once at shutdown. */

@@ -22,10 +22,10 @@ typedef struct CameraSettings {
 } CameraSettings;
 
 typedef struct Camera {
-    fVec3 *camera_position;
-    fVec3 *camera_front;
-    fVec3 *camera_up;
-    fVec3 *direction;
+    fVec4 *camera_position;
+    fVec4 *camera_front;
+    fVec4 *camera_up;
+    fVec4 *direction;
 
     fMatrix44 *camera_mat;
     fMatrix44 *projection_mat;
@@ -35,8 +35,8 @@ typedef struct Camera {
 } UserCamera;
 
 UserCamera *create_camera(void);
-void camera_look_at(UserCamera *, fVec3 *, fVec3 *, fVec3 *);
-void camera_look_at_front(UserCamera *, fVec3 *, fVec3 *, fVec3 *);
+void camera_look_at(UserCamera *, fVec4 *, fVec4 *, fVec4 *);
+void camera_look_at_front(UserCamera *, fVec4 *, fVec4 *, fVec4 *);
 void update_projection_mat(UserCamera *);
 void update_frustum_planes(UserCamera *);
 void perspective(float *, float *, float *, float *, float *, float *, float *, float *);

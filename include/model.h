@@ -8,8 +8,8 @@
 
 typedef struct LLVecConnections {
     struct LLVecConnections *next;
-    fVec3 *triangle_points[NUM_TRIANGLE_VERTEX];
-    fVec3 *surface_normal;
+    fVec4 *triangle_points[NUM_TRIANGLE_VERTEX];
+    fVec4 *surface_normal;
 
 } VecConnectionsPoints;
 
@@ -20,8 +20,8 @@ typedef struct Mesh {
     int vec_normal_count;
     int num_triangles;
 
-    fVec3 *vec_arr;
-    fVec3 *bounding_box_vec[NUM_BOUNDING_BOX_VERTEX];
+    fVec4 *vec_arr;
+    fVec4 *bounding_box_vec[NUM_BOUNDING_BOX_VERTEX];
 
     VecConnectionsPoints *head;
 } Mesh;

@@ -3,10 +3,11 @@
 #include "geometry.h"
 #include <stdlib.h>
 
-fVec3 create_translation_vec(float x, float y, float z) {
-    return (fVec3){x, y, z};
+fVec4 create_translation_vec(float x, float y, float z) {
+    // w = 1.0 for a position/point
+    return (fVec4){x, y, z, 1.0f};
 }
-fMatrix44 *create_translation_mat(fVec3 pos) {
+fMatrix44 *create_translation_mat(fVec4 pos) {
     fMatrix44 *mat = create_identity_fmatrix44();
     mat->mat[3][0] = pos.x;
     mat->mat[3][1] = pos.y;
@@ -15,15 +16,17 @@ fMatrix44 *create_translation_mat(fVec3 pos) {
     return mat;
 }
 
-fVec3 create_rotation_vec_deg(float xdeg, float ydeg, float zdeg) {
-    return (fVec3){xdeg * DEGREES_TO_RADIANS, ydeg * DEGREES_TO_RADIANS, zdeg * DEGREES_TO_RADIANS};
+fVec4 create_rotation_vec_deg(float xdeg, float ydeg, float zdeg) {
+    // w = 0.0 for a direction/rotation
+    return (fVec4){xdeg * DEGREES_TO_RADIANS, ydeg * DEGREES_TO_RADIANS, zdeg * DEGREES_TO_RADIANS, 0.0f};
 }
 
-fVec3 create_rotation_vec_rad(float xrad, float yrad, float zrad) {
-    return (fVec3){xrad, yrad, zrad};
+fVec4 create_rotation_vec_rad(float xrad, float yrad, float zrad) {
+    // w = 0.0 for a direction/rotation
+    return (fVec4){xrad, yrad, zrad, 0.0f};
 }
 
-fMatrix44 *create_rotation_mat(fVec3 rot) {
+fMatrix44 *create_rotation_mat(fVec4 rot) {
     float cosx = cos(rot.x);
     float cosy = cos(rot.y);
     float cosz = cos(rot.z);
@@ -62,15 +65,17 @@ fMatrix44 *create_rotation_mat(fVec3 rot) {
     return mat;
 }
 
-fVec3 create_uniform_scale_vec(float s) {
-    return (fVec3){s, s, s};
+fVec4 create_uniform_scale_vec(float s) {
+    // w = 1.0 for scaling
+    return (fVec4){s, s, s, 1.0f};
 }
 
-fVec3 create_scale_vec(float x, float y, float z) {
-    return (fVec3){x, y, z};
+fVec4 create_scale_vec(float x, float y, float z) {
+    // w = 1.0 for scaling
+    return (fVec4){x, y, z, 1.0f};
 }
 
-fMatrix44 *create_scale_mat(fVec3 s) {
+fMatrix44 *create_scale_mat(fVec4 s) {
     fMatrix44 *mat = create_identity_fmatrix44();
 
     mat->mat[0][0] *= s.x;

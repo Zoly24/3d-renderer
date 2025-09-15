@@ -6,6 +6,90 @@
 #include "constants.h"
 #include "geometry.h"
 
+fVec4 *create_fvec4(float x, float y, float z, float w) {
+    fVec4 *vector = (fVec4 *)malloc(sizeof(fVec4));
+    if (!vector) {
+        printf("Unable to create fvec4");
+        return NULL;
+    }
+
+    vector->x = x;
+    vector->y = y;
+    vector->z = z;
+    vector->w = w;
+
+    return vector;
+}
+
+float calculate_length_fvec4(fVec4 *v) {
+    return sqrt((v->x * v->x) + (v->y * v->y) + (v->z * v->z));
+}
+void normalize_fvec4(fVec4 *v) {
+    float length = dot_fvec4(v, v);
+
+    if (length > 0) {
+        float inv_length = 1 / sqrt(length);
+        v->x *= inv_length;
+        v->y *= inv_length;
+        v->z *= inv_length;
+    }
+}
+float dot_fvec4(fVec4 *a, fVec4 *b) {
+    return (a->x * b->x + a->y * b->y + a->z * b->z);
+}
+
+fVec4 *cross_fvec4(fVec4 *a, fVec4 *b) {
+    return create_fvec4((a->y * b->z) - (a->z * b->y),
+                        (a->z * b->x) - (a->x * b->z),
+                        (a->x * b->y) - (a->y * b->x),
+                        0);
+}
+void cross_fvec4_in_place(fVec4 *dest, fVec4 *other) {
+    dest->x = (dest->y * other->z) - (dest->z * other->y);
+    dest->y = (dest->z * other->x) - (dest->x * other->z);
+    dest->z = (dest->x * other->y) - (dest->y * other->x);
+}
+fVec4 *add_fvec4(fVec4 *a, fVec4 *b) {
+    return create_fvec4(a->x + b->x,
+                        a->y + b->y,
+                        a->z + b->z,
+                        a->w + b->w);
+}
+
+fVec4 *sub_fvec4(fVec4 *a, fVec4 *b) {
+    return create_fvec4(a->x - b->x,
+                        a->y - b->y,
+                        a->z - b->z,
+                        a->w - b->w);
+}
+
+fVec4 *scale_fvec4(fVec4 *v, float scale) {
+    return create_fvec4(v->x * scale,
+                        v->y * scale,
+                        v->z * scale,
+                        v->w);
+}
+
+void add_fvec4_in_place(fVec4 *dest, fVec4 *other) {
+    dest->x = dest->x + other->x;
+    dest->y = dest->y + other->y;
+    dest->z = dest->z + other->z;
+    dest->w = dest->w + other->w;
+}
+
+void sub_fvec4_in_place(fVec4 *dest, fVec4 *other) {
+    dest->x = dest->x - other->x;
+    dest->y = dest->y - other->y;
+    dest->z = dest->z - other->z;
+    dest->w = dest->w - other->w;
+}
+
+void scale_fvec4_in_place(fVec4 *dest, float scale) {
+    dest->x = dest->x * scale;
+    dest->y = dest->y * scale;
+    dest->z = dest->z * scale;
+}
+
 fVec3 *create_fvec3(float x, float y, float z) {
     fVec3 *vector = (fVec3 *)malloc(sizeof(fVec3));
     if (!vector) {
@@ -209,6 +293,26 @@ void scale_ivec3_in_place(iVec3 *dest, float scale) {
     dest->z = dest->z * scale;
 }
 
+// iVec2 Arithmetic
+
+int x_intersection_ivec2(iVec2 *v1, iVec2 *v2, iVec2 *v3, iVec2 *v4) {
+    int numerator = (v1->x * v2->y - v1->y * v2->x) * (v3->x - v4->x) -
+                    (v1->x - v2->x) * (v3->x * v4->y - v3->y * v4->x);
+
+    int demoninator = (v1->x - v2->x) * (v3->y - v4->y) - (v1->y - v2->y) * (v3->x - v4->x);
+
+    return numerator / demoninator;
+}
+
+int y_intersection_ivec2(iVec2 *v1, iVec2 *v2, iVec2 *v3, iVec2 *v4) {
+    int numerator = (v1->x * v2->y - v1->y * v2->x) * (v3->y - v4->y) -
+                    (v1->y - v2->y) * (v3->x * v4->y - v3->y * v4->x);
+
+    int demoninator = (v1->x - v2->x) * (v3->y - v4->y) - (v1->y - v2->y) * (v3->x - v4->x);
+
+    return numerator / demoninator;
+}
+
 // Plane Creation
 
 fPlane *create_empty_fplane() {
@@ -395,6 +499,29 @@ void multiply_fvec3_matrix44(fVec3 *in, fVec3 *out, fMatrix44 *mat) {
         out->y /= w;
         out->z /= w;
     }
+}
+
+void multiply_fvec4_matrix44(fVec4 *in, fVec4 *out, fMatrix44 *mat) {
+    out->x = in->x * mat->mat[0][0] + in->y * mat->mat[1][0] + in->z * mat->mat[2][0] + mat->mat[3][0];
+    out->y = in->x * mat->mat[0][1] + in->y * mat->mat[1][1] + in->z * mat->mat[2][1] + mat->mat[3][1];
+    out->z = in->x * mat->mat[0][2] + in->y * mat->mat[1][2] + in->z * mat->mat[2][2] + mat->mat[3][2];
+    out->w = in->x * mat->mat[0][3] + in->y * mat->mat[1][3] + in->z * mat->mat[2][3] + mat->mat[3][3];
+}
+
+float get_w_fvec3_matrix44(fVec3 *in, fMatrix44 *mat) {
+    float w = in->x * mat->mat[0][3] + in->y * mat->mat[1][3] + in->z * mat->mat[2][3] + mat->mat[3][3];
+    return w;
+}
+
+int plane_distance_to_fvec4(fPlane plane, fVec4 *v) {
+    float distance = (plane.a * v->x) + (plane.b * v->y) + (plane.c * v->z) + plane.d;
+
+    if (distance < 0) {
+        return NEGATIVE_OF_PLANE;
+    } else if (distance > 0) {
+        return POSITIVE_OF_PLANE;
+    }
+    return ON_PLANE;
 }
 
 int plane_distance_to_fvec3(fPlane plane, fVec3 *v) {

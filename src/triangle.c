@@ -39,11 +39,15 @@ void draw_triangle(SDL_Renderer *renderer, iVec2 *v1, iVec2 *v2, iVec2 *v3) {
     render_line(renderer, v3, v1);
 }
 
-void batch_draw_triangles(SDL_Renderer *renderer, int size, iVec2 **point_arr) {
-    for (int i = 0; i < size; i++) {
-        render_line(renderer, &point_arr[i][0], &point_arr[i][1]);
-        render_line(renderer, &point_arr[i][1], &point_arr[i][2]);
-        render_line(renderer, &point_arr[i][2], &point_arr[i][0]);
+void batch_draw_triangles(SDL_Renderer *renderer, int size, iVec2 *point_arr) {
+    for (int i = 0; i < size * 3; i += 3) {
+        iVec2 p1 = point_arr[i + 0];
+        iVec2 p2 = point_arr[i + 1];
+        iVec2 p3 = point_arr[i + 2];
+
+        render_line(renderer, &p1, &p2);
+        render_line(renderer, &p2, &p3);
+        render_line(renderer, &p3, &p1);
     }
 }
 
