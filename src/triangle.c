@@ -48,6 +48,8 @@ void batch_draw_triangles(SDL_Renderer *renderer, int size, iVec2 *point_arr) {
         render_line(renderer, &p1, &p2);
         render_line(renderer, &p2, &p3);
         render_line(renderer, &p3, &p1);
+
+        fill_triangle(renderer, &p1, &p2, &p3);
     }
 }
 
@@ -70,20 +72,20 @@ void populate_uv_map(Triangle *triangle) {
     // triangle->v3->v = (triangle->v3->y - min_y) / height;
 }
 
-void fill_triangle(SDL_Renderer *renderer, SDL_Color *color, Triangle *triangle, float *z_buffer, int width, int height) {
+void fill_triangle(SDL_Renderer *renderer, iVec2 *p1, iVec2 *p2, iVec2 *p3) {
 
-    int xa = triangle->v1->x;
-    int xb = triangle->v2->x;
-    int xc = triangle->v3->x;
+    int xa = p1->x;
+    int xb = p2->x;
+    int xc = p3->x;
 
-    int ya = triangle->v1->y;
-    int yb = triangle->v2->y;
-    int yc = triangle->v3->y;
+    int ya = p1->y;
+    int yb = p2->y;
+    int yc = p3->y;
 
-    int min_x = fmin(triangle->v1->x, fmin(triangle->v2->x, triangle->v3->x));
-    int max_x = fmax(triangle->v1->x, fmax(triangle->v2->x, triangle->v3->x));
-    int min_y = fmin(triangle->v1->y, fmin(triangle->v2->y, triangle->v3->y));
-    int max_y = fmax(triangle->v1->y, fmax(triangle->v2->y, triangle->v3->y));
+    int min_x = fmin(p1->x, fmin(p2->x, p3->x));
+    int max_x = fmax(p1->x, fmax(p2->x, p3->x));
+    int min_y = fmin(p1->y, fmin(p2->y, p3->y));
+    int max_y = fmax(p1->y, fmax(p2->y, p3->y));
 
     for (int y = min_y; y <= max_y; y++) {
         for (int x = min_x; x <= max_x; x++) {
@@ -95,7 +97,7 @@ void fill_triangle(SDL_Renderer *renderer, SDL_Color *color, Triangle *triangle,
 
             if (gamma >= 0 && beta >= 0 && alpha >= 0) {
 
-                SDL_SetRenderDrawColor(renderer, alpha * 255, beta * 255, gamma * 255, 255);
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                 SDL_RenderPoint(renderer, x, y);
             }
         }

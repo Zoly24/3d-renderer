@@ -77,7 +77,7 @@ The renderer follows conventional 3D rendering pipeline:
 | View Matrix        |                Transform world space into the view space (camera) |
 | Projection Matrix  |  Transform the view into (orthographic or perspective) projection |
 | Viewport Transform |                    Transform 3d points into 2d screen coordinates |
-| Rasterize Lines    |                                  Generate lines and for triangles |
+| Rasterize Lines    |                    Generate lines and flat textures for triangles |
 | Culling/Clipping   |   Optimizing performance by removing triangles not in camera view |
 
 No external libraries to calculate matrix, vector, or transformation math. Everything was implemented in C.
